@@ -23,7 +23,7 @@ export default function Index() {
 
     return matchesSearch && matchesCategory;
   });
-  return ( /* criar componente pros itens do header pra botar no headerListComponent na flatlist da cidade e ficar td num scroll só */
+  return (
     <View style={[styles.container, { paddingTop: top, paddingBottom: bottom }]}>
       <FlatList
         data={filteredCities}

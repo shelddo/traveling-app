@@ -66,7 +66,6 @@ const style = StyleSheet.create({
         height: 32,
         paddingHorizontal: 8,
         borderRadius: 10,
-        boxShadow: "0px 4px 6px rgba(165, 140, 0, 0.5)"
     },
     badgeText: {
         color: "#b8b8b8",
@@ -77,9 +76,12 @@ const style = StyleSheet.create({
         position: "absolute",
         top: 16,
         right: 18,
+        /* iOS */
         textShadowColor: "black",
         textShadowOffset: { width: 0, height: 2 },
         textShadowRadius: 5,
+        /* Android */
+        filter: "drop-shadow(0px 2px 5px rgba(0, 0, 0, 0.8))",
     },
     title: {
         color: "#FFFFFF",
@@ -88,9 +90,10 @@ const style = StyleSheet.create({
         position: "absolute",
         bottom: 36,
         left: 10,
-        textShadowColor: "black",
-        textShadowOffset: { width: 0, height: 0 },
-        textShadowRadius: 10,
+        /*  textShadowColor: "black",
+         textShadowOffset: { width: 0, height: 0 },
+         textShadowRadius: 10, */
+        filter: "drop-shadow(0px 0px 3px rgba(0,0,0,0.8))",
     },
     description: {
         color: "#FFF",
@@ -98,9 +101,10 @@ const style = StyleSheet.create({
         fontWeight: 400,
         position: "absolute",
         bottom: 16,
-        left: 10,
+        left: 10,/* 
         textShadowColor: "black",
         textShadowOffset: { width: 0, height: 0 },
-        textShadowRadius: 10,
+        textShadowRadius: 10, */
+        filter: "drop-shadow(0px 0px 3px rgba(0,0,0,0.8))",
     },
 });
