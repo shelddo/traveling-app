@@ -14,6 +14,7 @@ export default function CityScreen() {
 
     const scheme = useThemeColorScheme();
     const theme = Colors[scheme ?? "light"];
+
     return (
         <View style={[style.container, { paddingTop: top, paddingBottom: bottom, backgroundColor: theme.background }]}>
             <View style={style.header}>
@@ -51,7 +52,10 @@ export default function CityScreen() {
                     )} />
                 </View>
             </ScrollView>
-            <Pressable style={[style.button, { bottom: bottom + 16, backgroundColor: theme.primary }]}>
+            <Pressable
+                style={({ pressed }) => [
+                    style.button, { bottom: bottom + 16, backgroundColor: pressed ? theme.buttonPressed : theme.primary }
+                ]}>
                 <Text style={style.buttonTxt}>Agendar viagem</Text>
             </Pressable>
         </View>

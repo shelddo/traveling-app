@@ -17,7 +17,7 @@ export default function Profile() {
         return (
             <View style={[style.container, { paddingTop: top, backgroundColor: theme.background }]}>
                 <View style={style.photoContainer}>
-                    <Image source={require("@/assets/images/react-logo.png")} resizeMode="center" style={[style.profilePhoto, { borderColor: theme.primary }]} />
+                    <Image source={{ uri: "https://media.tenor.com/p-Pi0DJ-8SwAAAAM/anime.gif" }} resizeMode="center" style={[style.profilePhoto, { borderColor: theme.primary }]} />
                     <View>
                         <Text style={{ fontSize: 16, color: theme.text }}>Olá,</Text>
                         <Text style={{ fontSize: 32, color: theme.text, fontWeight: "bold" }}>React</Text>

@@ -5,7 +5,7 @@ import { FontAwesome6 } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Dimensions, Image, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Dimensions, Image, Pressable, StyleSheet, Text, View } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming, } from "react-native-reanimated";
 
 type CityItemProps = {
@@ -56,16 +56,6 @@ export function CityItem({ city }: CityItemProps) {
             }}
             onPressOut={() => {
                 scale.value = 1;
-            }}
-            onHoverIn={() => {
-                if (Platform.OS == "web") {
-                    scale.value = 1.03;
-                }
-            }}
-            onHoverOut={() => {
-                if (Platform.OS == "web") {
-                    scale.value = 1;
-                }
             }}
         >
             <Animated.View style={[style.card, animatedStyle]}>
