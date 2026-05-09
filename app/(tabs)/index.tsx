@@ -1,16 +1,20 @@
 import { CategoriesFilter } from "@/components/CategoriesFilter";
 import { CityItem } from "@/components/CityItem";
 import { SearchBar } from "@/components/SearchBar";
+import { Colors } from "@/constants/theme";
 import { cities } from "@/data/cities";
+import { useThemeColorScheme } from "@/hooks/use-color-scheme";
 import { useState } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
 
 export default function Index() {
   const { top, bottom } = useSafeAreaInsets();
   const [search, setSearch] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+
+  const colorScheme = useThemeColorScheme();
+  const theme = Colors[colorScheme ?? 'light'];
 
   const filteredCities = cities.filter((city) => {
     const matchesSearch = city.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().includes(search.toLowerCase());
@@ -24,15 +28,16 @@ export default function Index() {
     return matchesSearch && matchesCategory;
   });
   return (
-    <View style={[styles.container, { paddingTop: top, paddingBottom: bottom }]}>
+    <View style={[styles.container, { backgroundColor: theme.background, paddingTop: top }]}>
       <FlatList
         data={filteredCities}
         ListHeaderComponent={
-          <View> {/*Header*/}
+          <View>
             <SearchBar search={search} setSearch={setSearch} />
             <CategoriesFilter selectedCategories={selectedCategories} setSelectedCategories={setSelectedCategories} />
           </View>
         }
+        contentContainerStyle={{ paddingBottom: 16, paddingHorizontal: 16 }}
         renderItem={({ item }) => <CityItem city={item} />}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
@@ -46,9 +51,7 @@ export default function Index() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#1B1B1B",
     flex: 1,
-    paddingHorizontal: 16,
   },
   title: {
     color: "#FFFFFF",

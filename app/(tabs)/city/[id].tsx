@@ -1,7 +1,9 @@
+import { Colors } from "@/constants/theme";
 import { cities } from "@/data/cities";
+import { useThemeColorScheme } from "@/hooks/use-color-scheme";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { FlatList, Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function CityScreen() {
@@ -9,22 +11,26 @@ export default function CityScreen() {
     const city = cities.find((c) => c.id === id);
     const { top, bottom } = useSafeAreaInsets();
     const router = useRouter();
+
+    const scheme = useThemeColorScheme();
+    const theme = Colors[scheme ?? "light"];
     return (
-        <View style={[style.container, { paddingTop: top, paddingBottom: bottom }]}>
+        <View style={[style.container, { paddingTop: top, paddingBottom: bottom, backgroundColor: theme.background }]}>
             <View style={style.header}>
                 <Pressable style={style.backbtn} onPress={() => {
-                    if (router.canGoBack()) {
+                    /* if (router.canGoBack()) {
                         router.back();
                     }
                     else {
-                        router.replace("/");
-                    }
+                        router.replace("./index");
+                    } */
+                    router.back()
                 }} >
                     <FontAwesome6 name="square-caret-left" size={30} color={"#ff6464"} solid />
                 </Pressable>
-                <Text style={style.title}>{city?.name}</Text>
+                <Text style={[style.title, { color: theme.text }]}>{city?.name}</Text>
             </View>
-            <View style={style.contentcontainer}>
+            <ScrollView style={style.contentcontainer}>
                 <Image source={city?.coverImage} style={style.image} resizeMode="cover" />
                 <View>
                     <FlatList data={city?.categories}
@@ -37,14 +43,17 @@ export default function CityScreen() {
                         showsHorizontalScrollIndicator={false}
                     />
                 </View>
-                <Text style={style.description}>{city?.description}</Text>
-                <Text style={{ fontSize: 20, fontWeight: "bold", color: "#FFFFFF", marginTop: 16 }}>Principais atrações</Text>
+                <Text style={[style.description, { color: theme.text }]}>{city?.description}</Text>
+                <Text style={{ fontSize: 20, fontWeight: "bold", color: theme.text, marginTop: 16 }}>Principais atrações</Text>
                 <View>
                     <FlatList data={city?.touristAttractions} renderItem={({ item }) => (
-                        <Text style={style.attraction}>• {item.name}</Text>
+                        <Text style={[style.attraction, { color: theme.text }]}>• {item.name}</Text>
                     )} />
                 </View>
-            </View>
+            </ScrollView>
+            <Pressable style={[style.button, { bottom: bottom + 16, backgroundColor: theme.primary }]}>
+                <Text style={style.buttonTxt}>Agendar viagem</Text>
+            </Pressable>
         </View>
     )
 }
@@ -108,5 +117,21 @@ const style = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 15,
         paddingHorizontal: 12
+    },
+    button: {
+        position: "absolute",
+        left: 16,
+        right: 16,
+
+        height: 50,
+        borderRadius: 16,
+
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    buttonTxt: {
+        color: "#FFF",
+        fontSize: 16,
+        fontWeight: 500,
     }
 });

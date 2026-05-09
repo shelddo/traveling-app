@@ -1,8 +1,12 @@
+import { Colors } from "@/constants/theme";
 import { categories } from "@/data/categories";
+import { useThemeColorScheme } from "@/hooks/use-color-scheme";
 import { Dispatch, SetStateAction } from "react";
 import { FlatList, Pressable, StyleSheet, Text } from "react-native";
 
 export function CategoriesFilter({ selectedCategories, setSelectedCategories }: { selectedCategories: string[], setSelectedCategories: Dispatch<SetStateAction<string[]>> }) {
+    const scheme = useThemeColorScheme();
+    const theme = Colors[scheme ?? 'light'];
     return (<FlatList
         contentContainerStyle={{ gap: 8, marginBottom: 16 }}
         data={categories}
@@ -20,9 +24,9 @@ export function CategoriesFilter({ selectedCategories, setSelectedCategories }: 
                             setSelectedCategories((prev) => [...prev, item.id]);
                         }
                     }}
-                    style={[styles.categoryButton, isSelected && styles.categoryButtonActive]}
+                    style={[styles.categoryButton, isSelected && styles.categoryButtonActive, { backgroundColor: isSelected ? theme.activeCategoryBgBtn : theme.background, borderColor: theme.inactiveBorder }]}
                 >
-                    <Text style={[styles.categoryText, isSelected && styles.categoryTextActive]}>{item.name}</Text>
+                    <Text style={[styles.categoryText, isSelected && styles.categoryTextActive, { color: isSelected ? theme.activeCategoryText : theme.inactiveText }]}>{item.name}</Text>
                 </Pressable>
             );
         }} />
@@ -31,7 +35,7 @@ export function CategoriesFilter({ selectedCategories, setSelectedCategories }: 
 
 const styles = StyleSheet.create({
     categoryButton: {
-        backgroundColor: "#2c2c2c",
+        backgroundColor: "#1B1B1B",
         paddingHorizontal: 16,
         borderWidth: 1,
         borderColor: "#5c5c5c",
@@ -42,6 +46,7 @@ const styles = StyleSheet.create({
     },
     categoryText: {
         color: "#888888",
+        fontWeight: 500,
         lineHeight: 32,
     },
     categoryTextActive: {

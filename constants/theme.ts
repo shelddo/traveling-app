@@ -1,0 +1,37 @@
+
+export const Colors = {
+    light: {
+        text: "#000",
+        inactiveText: "#626262",
+        inactiveBorder: "#8b8b8b",
+        featuredText: "#000",
+        background: "#fff",
+        tint: "#ff6464",
+        inactiveTint: "#6666",
+        primary: "#ff6464",
+        secondary: "#f6f5f4",
+        tabBackground: "#fff",
+        activeCategoryBgBtn: "#ffdfdf",
+        activeCategoryText: "#ff6464",
+        inactiveCategoryText: "#626262",
+        buttonPressed: "#b14545",
+        buttonText: "#fff",
+    },
+    dark: {
+        text: "#fff",
+        inactiveText: "#888888",
+        inactiveBorder: "#5c5c5c",
+        featuredText: "#b8b8b8",
+        background: "#1B1B1B",
+        tint: "#ff6464",
+        inactiveTint: "#CCC",
+        primary: "#ff6464",
+        secondary: "#2c2c2c",
+        tabBackground: "#141010",
+        activeCategoryBgBtn: "#642929",
+        activeCategoryText: "#ffb8b8",
+        inactiveCategoryText: "#020202",
+        buttonPressed: "#b14545",
+        buttonText: "#fff",
+    }
+}

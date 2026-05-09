@@ -1,8 +1,12 @@
+import { Colors } from "@/constants/theme";
 import { City } from "@/data/types";
+import { useThemeColorScheme } from "@/hooks/use-color-scheme";
 import { FontAwesome6 } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Dimensions, Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Dimensions, Image, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming, } from "react-native-reanimated";
 
 type CityItemProps = {
     city: City;
@@ -10,42 +14,100 @@ type CityItemProps = {
 
 const { width } = Dimensions.get("window");
 export function CityItem({ city }: CityItemProps) {
+
     const router = useRouter();
     const isFeatured = city.categories.some((cat) => cat.id === "star");
     const [isFavorited, setIsFavorited] = useState(false);
+    const [hovered, setHovered] = useState(false);
+
+    const scale = useSharedValue(1);
+    const animatedStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{
+                scale: withTiming(scale.value, {
+                    duration: 200,
+                })
+            }]
+        }
+    })
+
+    const heartScale = useSharedValue(1);
+    const animatedHeartStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{
+                scale: heartScale.value,
+            }]
+        }
+    })
+
+    const scheme = useThemeColorScheme();
+    const theme = Colors[scheme ?? "light"];
+
     return (
-        <Pressable style={style.card}
+        <Pressable
             onPress={() => {
                 router.push({
                     pathname: "/city/[id]",
                     params: { id: city.id },
                 });
             }}
+            onPressIn={() => {
+                scale.value = 0.97;
+            }}
+            onPressOut={() => {
+                scale.value = 1;
+            }}
+            onHoverIn={() => {
+                if (Platform.OS == "web") {
+                    scale.value = 1.03;
+                }
+            }}
+            onHoverOut={() => {
+                if (Platform.OS == "web") {
+                    scale.value = 1;
+                }
+            }}
         >
-            <Image source={city.coverImage} style={{ height: 200, width: width - 32, borderRadius: 15 }} resizeMode="cover" />
-            {/* start badge */}
-            {isFeatured && (
-                <View style={style.badge}>
-                    <FontAwesome6 name="star" size={16} color="#FFD700" solid />
-                    <Text style={style.badgeText}>Destaque</Text>
-                </View>
-            )}
-            {/* end badge */}
-            {/* start like */}
-            <Pressable
-                style={style.heart}
-                hitSlop={10}
-                onPress={(e) => {
-                    e.stopPropagation();
-                    setIsFavorited((prev) => !prev);
-                    /* fazer algo p favoritar */
-                }}
-            >
-                <FontAwesome6 name="heart" size={20} color={isFavorited ? "#ff3939" : "#fff"} solid={isFavorited} />
-            </Pressable>
-            {/* end like */}
-            <Text style={style.title}>{city.name}</Text>
-            <Text style={style.description}>{city.country}</Text>
+            <Animated.View style={[style.card, animatedStyle]}>
+                <Image source={city.coverImage} style={{ height: 200, width: width - 32 }} resizeMode="cover" />
+                <LinearGradient
+                    colors={[
+                        "transparent",
+                        "rgba(0,0,0,0.15)",
+                        "rgba(0,0,0,0.85)"
+                    ]}
+                    style={style.gradient}
+                />
+                {/* start badge */}
+                {isFeatured && (
+                    <View style={[style.badge, { backgroundColor: theme.secondary }]}>
+                        <FontAwesome6 name="star" size={16} color="#FFD700" solid />
+                        <Text style={[style.badgeText, { color: theme.inactiveText }]}>Destaque</Text>
+                    </View>
+                )}
+                {/* end badge */}
+                {/* start like */}
+                <Pressable
+                    style={style.heart}
+                    hitSlop={10}
+                    onPress={(e) => {
+                        e.stopPropagation();
+                        setIsFavorited((prev) => !prev);
+                        heartScale.value = withSequence(
+                            withTiming(1.3, { duration: 120 }),
+                            withTiming(1, { duration: 120 })
+                        )
+                        /* fazer algo p favoritar */
+                    }}
+                >
+                    <Animated.View style={animatedHeartStyle}>
+                        <FontAwesome6 name="heart" size={20} color={isFavorited ? "#ff3939" : "#fff"} solid={isFavorited} />
+                    </Animated.View>
+                </Pressable>
+                {/* end like */}
+                <Text style={style.title}>{city.name}</Text>
+                <Text style={style.description}>{city.country}</Text>
+            </Animated.View>
         </Pressable>
     )
 }
@@ -54,6 +116,19 @@ const style = StyleSheet.create({
     card: {
         alignItems: "center",
         width: width - 32,
+        borderRadius: 15,
+        overflow: "hidden",
+    },
+    cardHovered: {
+
+    },
+    gradient: {
+        position: "absolute",
+        bottom: 0,
+        width: width - 32,
+        height: 160,
+        borderBottomLeftRadius: 15,
+        borderBottomRightRadius: 15,
     },
     badge: {
         position: "absolute",
@@ -77,9 +152,9 @@ const style = StyleSheet.create({
         top: 16,
         right: 18,
         /* iOS */
-        textShadowColor: "black",
+        /* textShadowColor: "black",
         textShadowOffset: { width: 0, height: 2 },
-        textShadowRadius: 5,
+        textShadowRadius: 5, */
         /* Android */
         filter: "drop-shadow(0px 2px 5px rgba(0, 0, 0, 0.8))",
     },
@@ -90,10 +165,6 @@ const style = StyleSheet.create({
         position: "absolute",
         bottom: 36,
         left: 10,
-        /*  textShadowColor: "black",
-         textShadowOffset: { width: 0, height: 0 },
-         textShadowRadius: 10, */
-        filter: "drop-shadow(0px 0px 3px rgba(0,0,0,0.8))",
     },
     description: {
         color: "#FFF",
@@ -101,10 +172,6 @@ const style = StyleSheet.create({
         fontWeight: 400,
         position: "absolute",
         bottom: 16,
-        left: 10,/* 
-        textShadowColor: "black",
-        textShadowOffset: { width: 0, height: 0 },
-        textShadowRadius: 10, */
-        filter: "drop-shadow(0px 0px 3px rgba(0,0,0,0.8))",
+        left: 10
     },
 });
