@@ -5,7 +5,8 @@ import { Colors } from "@/constants/theme";
 import { cities } from "@/data/cities";
 import { useThemeColorScheme } from "@/hooks/use-color-scheme";
 import { useState } from "react";
-import { FlatList, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import Animated, { useAnimatedScrollHandler, useSharedValue, } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Index() {
@@ -27,23 +28,38 @@ export default function Index() {
 
     return matchesSearch && matchesCategory;
   });
+
+  const scrollY = useSharedValue(0);
+
+  const onScroll = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollY.value = event.contentOffset.y;
+    },
+  });
+
   return (
     <View style={[styles.container, { backgroundColor: theme.background, paddingTop: top }]}>
-      <FlatList
+      <View style={{ paddingHorizontal: 16, }}>
+        <SearchBar search={search} setSearch={setSearch} />
+        <CategoriesFilter selectedCategories={selectedCategories} setSelectedCategories={setSelectedCategories} />
+      </View>
+      <Animated.FlatList
         data={filteredCities}
-        ListHeaderComponent={
-          <View>
-            <SearchBar search={search} setSearch={setSearch} />
-            <CategoriesFilter selectedCategories={selectedCategories} setSelectedCategories={setSelectedCategories} />
-          </View>
-        }
-        contentContainerStyle={{ paddingBottom: 16, paddingHorizontal: 16 }}
-        renderItem={({ item }) => <CityItem city={item} />}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
+        contentContainerStyle={{
+          paddingHorizontal: 16,
+        }}
+        renderItem={({ item, index }) => {
+          return (
+            <CityItem
+              city={item}
+              index={index}
+              scrollY={scrollY} />
+          );
+        }}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
-        ItemSeparatorComponent={() =>
-          <View style={{ height: 1, backgroundColor: "#5c5c5c", marginVertical: 32 }}></View>
-        }
       />
     </View>
   );

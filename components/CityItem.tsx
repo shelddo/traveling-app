@@ -6,25 +6,26 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Dimensions, Image, Pressable, StyleSheet, Text, View } from "react-native";
-import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming, } from "react-native-reanimated";
+import Animated, { Extrapolation, interpolate, SharedValue, useAnimatedStyle, useSharedValue, withSequence, withTiming } from "react-native-reanimated";
 
 type CityItemProps = {
     city: City;
+    index: number;
+    scrollY: SharedValue<number>;
 }
 
 const { width } = Dimensions.get("window");
-export function CityItem({ city }: CityItemProps) {
+export function CityItem({ city, index, scrollY }: CityItemProps) {
 
     const router = useRouter();
     const isFeatured = city.categories.some((cat) => cat.id === "star");
     const [isFavorited, setIsFavorited] = useState(false);
-    const [hovered, setHovered] = useState(false);
 
-    const scale = useSharedValue(1);
-    const animatedStyle = useAnimatedStyle(() => {
+    const cardClickScale = useSharedValue(1);
+    const animatedCardClickStyle = useAnimatedStyle(() => {
         return {
             transform: [{
-                scale: withTiming(scale.value, {
+                scale: withTiming(cardClickScale.value, {
                     duration: 200,
                 })
             }]
@@ -40,77 +41,116 @@ export function CityItem({ city }: CityItemProps) {
         }
     })
 
+    const CARD_HEIGHT = 200;
+    const STACK_OFFSET = 60;
+
+    const animatedStyle = useAnimatedStyle(() => {
+        const position = index * CARD_HEIGHT;
+
+        const scale = interpolate(
+            scrollY.value,
+            [
+                position - CARD_HEIGHT,
+                position,
+                position + CARD_HEIGHT,
+            ],
+            [0.9, 1, 0.9],
+            Extrapolation.CLAMP
+        )
+
+        const opacity = interpolate(
+            scrollY.value,
+            [
+                position - CARD_HEIGHT,
+                position,
+                position + CARD_HEIGHT,
+            ],
+            [0.5, 1, 0.5],
+            Extrapolation.CLAMP
+        );
+
+        return {
+            transform: [{ scale }],
+            opacity,
+        };
+    })
+
     const scheme = useThemeColorScheme();
     const theme = Colors[scheme ?? "light"];
 
     return (
-        <Pressable
-            onPress={() => {
-                router.push({
-                    pathname: "/city/[id]",
-                    params: { id: city.id },
-                });
-            }}
-            onPressIn={() => {
-                scale.value = 0.97;
-            }}
-            onPressOut={() => {
-                scale.value = 1;
-            }}
-        >
-            <Animated.View style={[style.card, animatedStyle]}>
-                <Image source={city.coverImage} style={{ height: 200, width: width - 32 }} resizeMode="cover" />
-                <LinearGradient
-                    colors={[
-                        "transparent",
-                        "rgba(0,0,0,0.15)",
-                        "rgba(0,0,0,0.85)"
-                    ]}
-                    style={style.gradient}
-                />
-                {/* start badge */}
-                {isFeatured && (
-                    <View style={[style.badge, { backgroundColor: theme.secondary }]}>
-                        <FontAwesome6 name="star" size={16} color="#FFD700" solid />
-                        <Text style={[style.badgeText, { color: theme.inactiveText }]}>Destaque</Text>
+        <Animated.View style={animatedStyle}>
+            <Pressable
+                onPress={() => {
+                    router.navigate({
+                        pathname: "/city/[id]",
+                        params: { id: city.id },
+                    });
+                }}
+                onPressIn={() => {
+                    cardClickScale.value = 0.97;
+                }}
+                onPressOut={() => {
+                    cardClickScale.value = 1;
+                }}
+            >
+                <Animated.View style={[style.card, animatedCardClickStyle]}>
+                    <Image source={city.coverImage} style={{ height: "100%", width: width - 32 }} resizeMode="cover" />
+                    <LinearGradient
+                        colors={[
+                            "transparent",
+                            "rgba(0,0,0,0.15)",
+                            "rgba(0,0,0,0.85)"
+                        ]}
+                        style={style.gradient}
+                    />
+                    {/* start badge */}
+                    {isFeatured && (
+                        <View style={[style.badge, { backgroundColor: theme.secondary }]}>
+                            <FontAwesome6 name="star" size={16} color="#FFD700" solid />
+                            <Text style={[style.badgeText, { color: theme.inactiveText }]}>Destaque</Text>
+                        </View>
+                    )}
+                    {/* end badge */}
+                    {/* start like */}
+                    <View style={style.heart}>
+                        <Animated.View style={[
+                            animatedHeartStyle,
+                            { padding: 10, },
+                        ]}>
+                            <Pressable
+                                hitSlop={10}
+                                onPress={(e) => {
+                                    e.stopPropagation();
+                                    setIsFavorited((prev) => !prev);
+                                    heartScale.value = withSequence(
+                                        withTiming(1.3, { duration: 120 }),
+                                        withTiming(1, { duration: 120 })
+                                    )
+                                    /* fazer algo p favoritar */
+                                }}
+                            >
+                                <FontAwesome6 name="heart" size={20} color={isFavorited ? "#ff3939" : "#fff"} solid={isFavorited} />
+                            </Pressable>
+                        </Animated.View>
                     </View>
-                )}
-                {/* end badge */}
-                {/* start like */}
-                <Pressable
-                    style={style.heart}
-                    hitSlop={10}
-                    onPress={(e) => {
-                        e.stopPropagation();
-                        setIsFavorited((prev) => !prev);
-                        heartScale.value = withSequence(
-                            withTiming(1.3, { duration: 120 }),
-                            withTiming(1, { duration: 120 })
-                        )
-                        /* fazer algo p favoritar */
-                    }}
-                >
-                    <Animated.View style={animatedHeartStyle}>
-                        <FontAwesome6 name="heart" size={20} color={isFavorited ? "#ff3939" : "#fff"} solid={isFavorited} />
-                    </Animated.View>
-                </Pressable>
-                {/* end like */}
-                <Text style={style.title}>{city.name}</Text>
-                <Text style={style.description}>{city.country}</Text>
-            </Animated.View>
-        </Pressable>
+                    {/* end like */}
+                    <Text style={style.title}>{city.name}</Text>
+                    <Text style={style.description}>{city.country}</Text>
+                </Animated.View>
+            </Pressable>
+        </Animated.View>
     )
 }
 
 const style = StyleSheet.create({
     card: {
         alignItems: "center",
+        height: 200,
         width: width - 32,
         borderRadius: 15,
         overflow: "hidden",
-    },
-    cardHovered: {
-
+        marginBottom: 16,
     },
     gradient: {
         position: "absolute",
@@ -139,8 +179,8 @@ const style = StyleSheet.create({
     },
     heart: {
         position: "absolute",
-        top: 16,
-        right: 18,
+        top: 6,
+        right: 8,
         /* iOS */
         /* textShadowColor: "black",
         textShadowOffset: { width: 0, height: 2 },
