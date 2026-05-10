@@ -4,7 +4,7 @@ import { useThemeColorScheme } from "@/hooks/use-color-scheme";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect } from "react";
-import { FlatList, Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, ScrollView, SectionList, StyleSheet, Text, View } from "react-native";
 import Animated, { interpolate, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -38,65 +38,89 @@ export default function CityScreen() {
         ],
     }));
 
+    const categoriesCount = city?.categories.length ?? 0;
     return (
         <View style={[
             style.container,
             { paddingTop: top, paddingBottom: bottom, backgroundColor: theme.background }
         ]}>
             <Animated.View style={[animatedStyle, { flex: 1 }]}>
-                <View style={style.header}>
-                    <Pressable style={style.backbtn} onPress={() => {
-                        /* if (router.canGoBack()) {
-                            router.back();
-                        }
-                        else {
-                            router.replace("./index");
-                        } */
-                        router.back()
-                    }} >
-                        <FontAwesome6 name="square-caret-left" size={30} color={"#ff6464"} solid />
-                    </Pressable>
-                    <Text style={[style.title, { color: theme.text }]}>{city?.name}</Text>
-                </View>
                 <View style={style.contentcontainer}>
-                    <Image source={city?.coverImage} style={style.image} resizeMode="cover" />
-                    <View>
-                        <FlatList data={city?.categories}
-                            keyExtractor={(item) => item.id}
-                            renderItem={({ item }) => (
-                                <Text style={style.category}>{item.name}</Text>
-                            )}
-                            contentContainerStyle={style.categories}
-                            horizontal={true}
-                            showsHorizontalScrollIndicator={false}
-                        />
+                    <View style={style.header}>
+                        <Pressable style={style.backbtn} onPress={() => {
+                            /* if (router.canGoBack()) {
+                                router.back();
+                            }
+                            else {
+                                router.replace("./index");
+                            } */
+                            router.back()
+                        }} >
+                            <FontAwesome6 name="square-caret-left" size={30} color={"#ff6464"} solid />
+                        </Pressable>
+                        <Text style={[style.title, { color: theme.text }]}>{city?.name}</Text>
                     </View>
-                    <Text style={[style.description, { color: theme.text }]}>{city?.description}</Text>
-                    <Text style={{ fontSize: 20, fontWeight: "bold", color: theme.text, marginTop: 16 }}>Principais atrações</Text>
-                    {city?.touristAttractions.map((item) => (
-                        <View key={item.id}>
-                            <Text style={[style.attraction, { color: theme.text }]}>• {item.name}</Text>
-                        </View>
-                    ))}
-                    <Text>teste</Text>
-                    <Text>teste</Text>
-                    <Text>teste</Text>
-                    <Text>teste</Text>
-                    <Text>teste</Text>
-                    <Text>teste</Text>
-                    <Text>teste</Text>
-                    <Text>teste</Text>
-                    <Text>teste</Text>
-                    <Text>teste</Text>
-                    <Text>teste</Text>
-                    <Text>teste</Text>
-                    <Text>teste</Text>
-                    <Text>teste</Text>
-                    <Text>teste</Text>
-                    <Text>teste</Text>
-                    <Text>teste</Text>
-                    <Text>teste</Text>
-                    <Text>teste</Text>
+                    <SectionList
+                        sections={[
+                            {
+                                title: "Principais atrações",
+                                data: city?.touristAttractions ?? [],
+                            },
+                        ]}
+                        keyExtractor={(item) => item.id}
+                        contentContainerStyle={{
+                            paddingHorizontal: 16,
+                            paddingBottom: bottom + 120,
+                        }}
+                        ListHeaderComponent={
+                            <>
+                                <Image source={city?.coverImage} style={style.image} resizeMode="cover" />
+                                {/* <View>
+                                    <FlatList data={city?.categories}
+                                        keyExtractor={(item) => item.id}
+                                        renderItem={({ item }) => (
+                                            <Text style={style.category}>{item.name}</Text>
+                                        )}
+                                        contentContainerStyle={style.categories}
+                                        horizontal={true}
+                                        showsHorizontalScrollIndicator={false}
+                                    />
+                                </View> */}
+                                <ScrollView
+                                    horizontal
+                                    showsHorizontalScrollIndicator={false}
+                                    contentContainerStyle={[
+                                        style.categories,
+                                        categoriesCount < 4 && {
+                                            flexGrow: 1,
+                                            justifyContent: "space-around",
+                                        }
+                                    ]}
+                                >
+                                    {city?.categories.map((item) => (
+                                        <Text
+                                            key={item.id}
+                                            style={style.category}
+                                        >
+                                            {item.name}
+                                        </Text>
+                                    ))}
+                                </ScrollView>
+                                <Text style={[style.description, { color: theme.text }]}>{city?.description}</Text>
+                            </>
+                        }
+                        renderSectionHeader={({ section }) => (
+                            <Text style={[style.sectionTitle, { color: theme.text }]}>{section.title}</Text>
+                        )}
+                        renderItem={({ item }) => {
+                            return (
+                                <View>
+                                    <Text style={[style.attraction, { color: theme.text }]}>• {item.name}</Text>
+                                </View>
+                            );
+                        }}
+                    />
+
                 </View>
                 <Pressable
                     style={({ pressed }) => [
@@ -117,6 +141,13 @@ const style = StyleSheet.create({
     header: {
         justifyContent: "center",
         alignItems: "center",
+        marginBottom: 16,
+    },
+    sectionTitle: {
+        fontSize: 20,
+        fontWeight: "bold",
+        marginTop: 24,
+        marginBottom: 12,
     },
     title: {
         color: "#FFFFFF",
@@ -133,8 +164,8 @@ const style = StyleSheet.create({
         marginTop: 16,
     },
     image: {
-        maxWidth: "100%",
-        maxHeight: 200,
+        width: "100%",
+        height: 200,
         borderRadius: 15,
         alignSelf: "center",
     },
@@ -152,12 +183,10 @@ const style = StyleSheet.create({
         marginTop: 16,
     },
     categories: {
-        flexGrow: 1,
-        maxHeight: 60,
         flexDirection: "row",
-        justifyContent: "space-around",
+        justifyContent: "center",
         marginTop: 16,
-        gap: 5,
+        gap: 8,
     },
     category: {
         color: "#ff6464",
@@ -166,7 +195,8 @@ const style = StyleSheet.create({
         borderColor: "#ff6464",
         borderWidth: 1,
         borderRadius: 15,
-        paddingHorizontal: 12
+        paddingHorizontal: 12,
+        paddingVertical: 6,
     },
     button: {
         position: "absolute",
