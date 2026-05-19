@@ -1,12 +1,11 @@
 import { CategoriesFilter } from "@/components/CategoriesFilter";
-import { CityItem } from "@/components/CityItem";
+import CityList from "@/components/CityList";
 import { SearchBar } from "@/components/SearchBar";
 import { Colors } from "@/constants/theme";
 import { cities } from "@/data/cities";
 import { useThemeColorScheme } from "@/hooks/use-color-scheme";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import Animated, { useAnimatedScrollHandler, useSharedValue, } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Index() {
@@ -29,38 +28,13 @@ export default function Index() {
     return matchesSearch && matchesCategory;
   });
 
-  const scrollY = useSharedValue(0);
-
-  const onScroll = useAnimatedScrollHandler({
-    onScroll: (event) => {
-      scrollY.value = event.contentOffset.y;
-    },
-  });
-
   return (
     <View style={[styles.container, { backgroundColor: theme.background, paddingTop: top }]}>
       <View style={{ paddingHorizontal: 16, }}>
         <SearchBar search={search} setSearch={setSearch} />
         <CategoriesFilter selectedCategories={selectedCategories} setSelectedCategories={setSelectedCategories} />
       </View>
-      <Animated.FlatList
-        data={filteredCities}
-        onScroll={onScroll}
-        scrollEventThrottle={16}
-        contentContainerStyle={{
-          paddingHorizontal: 16,
-        }}
-        renderItem={({ item, index }) => {
-          return (
-            <CityItem
-              city={item}
-              index={index}
-              scrollY={scrollY} />
-          );
-        }}
-        keyExtractor={(item) => item.id}
-        showsVerticalScrollIndicator={false}
-      />
+      <CityList cities={filteredCities} />
     </View>
   );
 }

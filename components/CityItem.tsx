@@ -12,10 +12,12 @@ type CityItemProps = {
     city: City;
     index: number;
     scrollY: SharedValue<number>;
+    isAtEnd: SharedValue<boolean>;
+    disableAnimation: SharedValue<boolean>;
 }
 
 const { width } = Dimensions.get("window");
-export function CityItem({ city, index, scrollY }: CityItemProps) {
+export function CityItem({ city, index, scrollY, isAtEnd, disableAnimation }: CityItemProps) {
 
     const router = useRouter();
     const isFeatured = city.categories.some((cat) => cat.id === "star");
@@ -71,6 +73,16 @@ export function CityItem({ city, index, scrollY }: CityItemProps) {
             [0.5, 1, 0.5],
             Extrapolation.CLAMP
         );
+
+        if (
+            isAtEnd.value ||
+            disableAnimation.value
+        ) {
+            return {
+                transform: [{ scale: 1 }],
+                opacity: 1,
+            }
+        }
 
         return {
             transform: [{ scale }],
