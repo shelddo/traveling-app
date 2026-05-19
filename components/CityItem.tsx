@@ -42,10 +42,11 @@ export function CityItem({ city, index, scrollY }: CityItemProps) {
     })
 
     const CARD_HEIGHT = 200;
-    const STACK_OFFSET = 60;
+    const CARD_MARGIN = 16;
+    const ITEM_SIZE = CARD_HEIGHT + CARD_MARGIN;
 
     const animatedStyle = useAnimatedStyle(() => {
-        const position = index * CARD_HEIGHT;
+        const position = index * ITEM_SIZE;
 
         const scale = interpolate(
             scrollY.value,
