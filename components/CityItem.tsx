@@ -1,10 +1,10 @@
 import { Colors } from "@/constants/theme";
 import { City } from "@/data/types";
 import { useThemeColorScheme } from "@/hooks/use-color-scheme";
+import { useFavoritesStore } from "@/store/favorites";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { useState } from "react";
 import { Dimensions, Image, Pressable, StyleSheet, Text, View } from "react-native";
 import Animated, { Extrapolation, interpolate, SharedValue, useAnimatedStyle, useSharedValue, withSequence, withTiming } from "react-native-reanimated";
 
@@ -19,7 +19,9 @@ export function CityItem({ city, index, scrollY }: CityItemProps) {
 
     const router = useRouter();
     const isFeatured = city.categories.some((cat) => cat.id === "star");
-    const [isFavorited, setIsFavorited] = useState(false);
+
+    const toggleFavorite = useFavoritesStore((state) => state.toggleFavorite);
+    const isFavorited = useFavoritesStore((state) => state.isFavorite(city.id));
 
     const cardClickScale = useSharedValue(1);
     const animatedCardClickStyle = useAnimatedStyle(() => {
@@ -123,7 +125,7 @@ export function CityItem({ city, index, scrollY }: CityItemProps) {
                                 hitSlop={10}
                                 onPress={(e) => {
                                     e.stopPropagation();
-                                    setIsFavorited((prev) => !prev);
+                                    toggleFavorite(city.id);
                                     heartScale.value = withSequence(
                                         withTiming(1.3, { duration: 120 }),
                                         withTiming(1, { duration: 120 })

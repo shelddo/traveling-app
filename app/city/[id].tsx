@@ -75,17 +75,6 @@ export default function CityScreen() {
                         ListHeaderComponent={
                             <>
                                 <Image source={city?.coverImage} style={style.image} resizeMode="cover" />
-                                {/* <View>
-                                    <FlatList data={city?.categories}
-                                        keyExtractor={(item) => item.id}
-                                        renderItem={({ item }) => (
-                                            <Text style={style.category}>{item.name}</Text>
-                                        )}
-                                        contentContainerStyle={style.categories}
-                                        horizontal={true}
-                                        showsHorizontalScrollIndicator={false}
-                                    />
-                                </View> */}
                                 <ScrollView
                                     horizontal
                                     showsHorizontalScrollIndicator={false}
@@ -119,6 +108,7 @@ export default function CityScreen() {
                                 </View>
                             );
                         }}
+                        showsVerticalScrollIndicator={false}
                     />
 
                 </View>
